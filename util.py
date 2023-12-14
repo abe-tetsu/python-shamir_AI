@@ -9,7 +9,7 @@ import shamir
 P = pow(2, 62) - 1
 K = 2
 N = 3
-Accuracy_weight = 10000
+Accuracy_weight = 1000
 Accuracy_image = 2
 
 

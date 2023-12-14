@@ -154,7 +154,7 @@ def main():
     (x_train, y_train), (x_test, y_test) = util.load_data()
     x_train, x_test = util.transform_data(x_train, x_test)
 
-    weights, weights1, weights2, weights3 = train_network(x_train[:1000], y_train[:1000], epochs=1, learning_rate=0.0001)
+    weights, weights1, weights2, weights3 = train_network(x_train[:1000], y_train[:1000], epochs=1, learning_rate=0.001)
     util.save_weights(weights, "weights.pkl", "training.py")
     util.save_weights(weights1, "weights1.pkl", "training.py")
     util.save_weights(weights2, "weights2.pkl", "training.py")
