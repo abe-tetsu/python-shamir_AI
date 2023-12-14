@@ -87,7 +87,7 @@ class TestShamirPlus(unittest.TestCase):
         n = 3
         p = pow(2, 62) - 1
         secret1 = -100
-        secret2 = 200
+        secret2 = -200
         shares1 = shamir.encrypt(secret1, k, n, p)
         shares2 = shamir.encrypt(secret2, k, n, p)
 
@@ -98,4 +98,3 @@ class TestShamirPlus(unittest.TestCase):
         res = shamir.decrypt([res1, res2, res3], p)
         print(res)
         self.assertEqual(res, secret1 * secret2)
-

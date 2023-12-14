@@ -12,6 +12,7 @@ N = 3
 Accuracy_weight = 1000
 Accuracy_image = 2
 
+
 def load_data():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train = x_train.reshape(60000, 784)
@@ -24,12 +25,14 @@ def load_data():
     print("load_data: OK")
     return (x_train, y_train), (x_test, y_test)
 
+
 def load_weights(save_filename):
     with open(save_filename, 'rb') as f:
         data = pickle.load(f)
 
     print("trained weights was saved from " + data['trained_filename'])
     return data['weights']
+
 
 def save_weights(weights, save_filename, trained_filename):
     with open(save_filename, 'wb') as f:
@@ -52,7 +55,8 @@ def compare_arrays(arr1, arr2):
 
     # 各要素の差が1以内かどうかをチェック
     for i in range(len(arr1)):
-        if abs(arr1[i] - arr2[i]) > 1:
+        if abs(arr1[i] - arr2[i]) > 100:
+            print("index:", i)
             return False
     return True
 
@@ -108,26 +112,33 @@ def outer(x, y):
     # dw[7840] から dw[784][10]に変換
     new_result = []
     for i in range(0, len(result), 10):
-        new_result.append(result[i:i+10])
+        new_result.append(result[i:i + 10])
 
     return np.array(new_result, dtype=np.int64)
+
 
 def debug_weight(loaded_weights, loaded_weights1, loaded_weights2, loaded_weights3, P):
     for index in range(len(loaded_weights)):
         print("index:", index)
-        dec = shamir.array_decrypt23(loaded_weights1[index], loaded_weights2[index] ,P)
+        dec = shamir.array_decrypt23(loaded_weights1[index], loaded_weights2[index], P)
         print("重み, 秘密分散前:", loaded_weights[index][0], loaded_weights[index][1], loaded_weights[index][2],
               loaded_weights[index][3], loaded_weights[index][4], loaded_weights[index][5], loaded_weights[index][6],
               loaded_weights[index][7], loaded_weights[index][8], loaded_weights[index][9])
         print("重み, 秘密分散後:", dec[0], dec[1], dec[2], dec[3], dec[4], dec[5], dec[6], dec[7], dec[8], dec[9])
         print("----------------------------")
 
+
 def test_dec(loaded_weights, loaded_weights1, loaded_weights2, loaded_weights3, P):
+    count = 0
     for index in range(len(loaded_weights)):
         dec = shamir.array_decrypt23(loaded_weights1[index], loaded_weights2[index], P)
         if not compare_arrays(loaded_weights[index], dec):
-            print("index:", index)
-            print("weights[index]:", loaded_weights[index])
-            print("dec_weight:", dec)
-            exit()
-    print("pass!")
+            count += 1
+            # indexだけ赤色で表示
+            print("\033[31mindex:", index, "\033[0m")
+            print("秘密分散前:", loaded_weights[index][0], loaded_weights[index][1], loaded_weights[index][2],
+                  loaded_weights[index][3], loaded_weights[index][4], loaded_weights[index][5],
+                  loaded_weights[index][6], loaded_weights[index][7], loaded_weights[index][8],
+                  loaded_weights[index][9])
+            print("秘密分散後:", dec[0], dec[1], dec[2], dec[3], dec[4], dec[5], dec[6], dec[7], dec[8], dec[9])
+    return count

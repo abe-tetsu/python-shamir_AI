@@ -1,50 +1,30 @@
 import random
 import numpy
 
-#
-# def lagrange(x_list, y_list):
-#     res = 0
-#     for n in range(len(x_list)):
-#         res_n = y_list[n]
-#         for m in range(len(x_list)):
-#             if m != n:
-#                 res_n *= (0 - x_list[m]) // (x_list[n] - x_list[m])
-#         res += res_n
-#     return res
-#
-#
-# def decrypt(shares, p):
-#     # print("shares:", shares)
-#     k = len(shares)
-#     x_list = [i + 1 for i in range(k)]
-#     y_list = shares
-#     f0 = lagrange(x_list, y_list)
-#     f0_mod = int(f0 % p)
-#
-#     # 復元された値がpの半分より大きい場合、それを負の数として扱う
-#     if f0_mod > p // 2:
-#         print("f0_mod > p // 2")
-#         f0_mod -= p
-#
-#     return f0_mod
 
+# Cの値を求める
 def lagrange_interpreter(x_list, i, p):
     x_i = x_list[i]
     res = 1
     for cnt, x_atom in enumerate(x_list):
         if cnt != i:
+            # -i_l
             numerator = (-x_atom + p) % p  # 分子をpで剰余
+            # i_j - i_l
             denominator = (x_i - x_atom + p) % p  # 分母をpで剰余
             # 逆元を求める
             inv_denominator = pow(denominator, -1, p)
             res = (res * numerator * inv_denominator) % p
     return res
 
+
 def lagrange(x_list, y_list, p):
     res = 0
+    # Σ(y*C)
     for n in range(len(x_list)):
         res += (lagrange_interpreter(x_list, n, p) * y_list[n]) % p
     return res % p
+
 
 def decrypt(shares, p):
     k = len(shares)
@@ -58,7 +38,6 @@ def decrypt(shares, p):
         f0_mod -= p
 
     return f0_mod
-
 
 
 # (3, 3)閾値分散法にのみ対応

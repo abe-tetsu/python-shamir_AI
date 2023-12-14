@@ -27,17 +27,14 @@ def recognition(random_idx, x_test, loaded_weights, loaded_weights1, loaded_weig
         test_image_shares2.append(shares[1])
         test_image_shares3.append(shares[2])
 
-        if test_image[i] != shamir.decrypt(shares[:K], P):
-            ValueError("error", test_image[i], shamir.decrypt(shares[:K], P))
-
     test_image_shares1 = np.array(test_image_shares1)
     test_image_shares2 = np.array(test_image_shares2)
     test_image_shares3 = np.array(test_image_shares3)
 
-    prediction0 = util.dot(test_image, loaded_weights)
-    prediction1 = util.dot(test_image_shares1, loaded_weights1)
-    prediction2 = util.dot(test_image_shares2, loaded_weights2)
-    prediction3 = util.dot(test_image_shares3, loaded_weights3)
+    prediction0 = np.dot(test_image, loaded_weights)
+    prediction1 = np.dot(test_image_shares1, loaded_weights1)
+    prediction2 = np.dot(test_image_shares2, loaded_weights2)
+    prediction3 = np.dot(test_image_shares3, loaded_weights3)
 
     # overflow対策
     prediction1 = np.array(prediction1, dtype=object)
@@ -60,9 +57,6 @@ def recognition(random_idx, x_test, loaded_weights, loaded_weights1, loaded_weig
 
 
 def main():
-    print(P)
-    print(P//2)
-
     (x_train, _), (x_test, y_test) = util.load_data()
     x_train, x_test = util.transform_data(x_train, x_test)
     loaded_weights = util.load_weights("weights.pkl")
