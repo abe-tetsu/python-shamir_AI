@@ -98,3 +98,21 @@ class TestShamirPlus(unittest.TestCase):
         res = shamir.decrypt([res1, res2, res3], p)
         print(res)
         self.assertEqual(res, secret1 * secret2)
+
+    def test_wari(self):
+        k = 2
+        n = 3
+        p = pow(2, 62) - 1
+        secret1 = 200
+        secret2 = pow(2, -1, p)
+        print(secret1, secret2)
+        shares1 = shamir.encrypt(secret1, k, n, p)
+        shares2 = shamir.encrypt(secret2, k, n, p)
+
+        res1 = shares1[0] * shares2[0]
+        res2 = shares1[1] * shares2[1]
+        res3 = shares1[2] * shares2[2]
+
+        res = shamir.decrypt([res1, res2, res3], p)
+        print(res)
+        self.assertEqual(res, secret1 // secret2)
