@@ -50,8 +50,8 @@ def transform_data(x_train, x_test):
 
 def compare_arrays(arr1, arr2):
     # 同じ長さでなければエラー
-    if len(arr1) != len(arr2) or len(arr1) != 10:
-        raise ValueError("Both arrays must have a length of 10.")
+    if len(arr1) != len(arr2):
+        raise ValueError("Both input lists must have the same length. len(arr1):", len(arr1), "len(arr2):", len(arr2))
 
     # 各要素の差が1以内かどうかをチェック
     for i in range(len(arr1)):
