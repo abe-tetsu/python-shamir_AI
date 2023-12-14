@@ -12,6 +12,14 @@ Accuracy_weight = util.Accuracy_weight
 def relu(x):
     return np.maximum(0, x)
 
+# 秘密分散のReLUは、P/2より大きいかどうかで判断する
+def relu_shamir(x):
+    for i in range(len(x)):
+        if x[i] > P / 2:
+            return np.zeros(len(x))
+    return x
+
+
 
 def train_network(x_train, y_train, epochs, learning_rate):
     print("training start")
@@ -34,6 +42,7 @@ def train_network(x_train, y_train, epochs, learning_rate):
         weights2_row = []
         weights3_row = []
         for weight in weight_row:
+            # weight_tmp = np.round(weight * learning_rate)
             shares = shamir.encrypt(int(weight), K, N, P)
             weights1_row.append(shares[0])
             weights2_row.append(shares[1])
@@ -85,17 +94,17 @@ def train_network(x_train, y_train, epochs, learning_rate):
 
             # -------------------------------------------
 
-            # aを秘密分散
-            a1 = []
-            a2 = []
-            a3 = []
-            for i in range(len(a)):
-                # aにlearning_rateをかけて四捨五入
-                a_tmp = np.round(a[i] * learning_rate)
-                shares = shamir.encrypt(int(a_tmp), K, N, P)
-                a1.append(shares[0])
-                a2.append(shares[1])
-                a3.append(shares[2])
+            # zを秘密分散
+            z1 = np.dot(x1, weights1)
+            z2 = np.dot(x2, weights2)
+            z3 = np.dot(x3, weights3)
+
+            # zを再分配
+            z1_transformed, z2_transformed, z3_transformed = shamir.array_convert_shamir(z1, z2, z3, K, N, P)
+
+            a1 = relu_shamir(z1_transformed)
+            a2 = relu_shamir(z2_transformed)
+            a3 = relu_shamir(z3_transformed)
 
             a1 = np.array(a1, dtype=np.int64)
             a2 = np.array(a2, dtype=np.int64)
@@ -115,9 +124,25 @@ def train_network(x_train, y_train, epochs, learning_rate):
             dw1_transformed, dw2_transformed, dw3_transformed = shamir.array_convert_shamir_2d(dw1, dw2, dw3, K, N, P)
 
             # 重みとバイアスの更新
-            weights1 = (weights1 - dw1_transformed).astype(np.int64)
-            weights2 = (weights2 - dw2_transformed).astype(np.int64)
-            weights3 = (weights3 - dw3_transformed).astype(np.int64)
+            weights1 = (weights1 - dw1_transformed * learning_rate).astype(np.int64)
+            weights2 = (weights2 - dw2_transformed * learning_rate).astype(np.int64)
+            weights3 = (weights3 - dw3_transformed * learning_rate).astype(np.int64)
+
+            # debug
+            # for i in range(len(weights)):
+            #     dec_weight = shamir.array_decrypt23(weights1[i], weights2[i], P)
+            #     print("秘密分散前:", weights[i][0], weights[i][1], weights[i][2], weights[i][3], weights[i][4],
+            #           weights[i][5], weights[i][6], weights[i][7], weights[i][8], weights[i][9])
+            #     print("秘密分散後:", dec_weight[0], dec_weight[1], dec_weight[2], dec_weight[3], dec_weight[4],
+            #           dec_weight[5], dec_weight[6], dec_weight[7], dec_weight[8], dec_weight[9])
+            #     print("----------------------------")
+                # if not util.compare_arrays(weights[i], dec_weight):
+                #     print("index:", i)
+                #     print("秘密分散前:", weights[i][0], weights[i][1], weights[i][2], weights[i][3], weights[i][4],
+                #           weights[i][5], weights[i][6], weights[i][7], weights[i][8], weights[i][9])
+                #     print("秘密分散後:", dec_weight[0], dec_weight[1], dec_weight[2], dec_weight[3], dec_weight[4],
+                #           dec_weight[5], dec_weight[6], dec_weight[7], dec_weight[8], dec_weight[9])
+                #     print("----------------------------")
 
         print(f"Epoch {epoch + 1}/{epochs}")
     print("training done")
@@ -129,7 +154,7 @@ def main():
     (x_train, y_train), (x_test, y_test) = util.load_data()
     x_train, x_test = util.transform_data(x_train, x_test)
 
-    weights, weights1, weights2, weights3 = train_network(x_train[:2000], y_train[:2000], epochs=1, learning_rate=0.0001)
+    weights, weights1, weights2, weights3 = train_network(x_train[:1000], y_train[:1000], epochs=1, learning_rate=0.0001)
     util.save_weights(weights, "weights.pkl", "training.py")
     util.save_weights(weights1, "weights1.pkl", "training.py")
     util.save_weights(weights2, "weights2.pkl", "training.py")
