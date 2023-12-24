@@ -9,8 +9,8 @@ import shamir
 P = pow(2, 62) - 1
 K = 2
 N = 3
-Accuracy_weight = 100000
-Accuracy_image = 1000
+Accuracy_weight = 1000
+Accuracy_image = 100
 
 
 def load_data():
@@ -41,8 +41,8 @@ def save_weights(weights, save_filename, trained_filename):
 
 # dataすべてAccuracy_image倍してintに変換する
 def transform_data(x_train, x_test):
-    x_train_scaled_images = (x_train * Accuracy_image).astype(int)
-    x_test_scaled_images = (x_test * Accuracy_image).astype(int)
+    x_train_scaled_images = (x_train * 0.1 * Accuracy_image).astype(int)
+    x_test_scaled_images = (x_test * 0.1 * Accuracy_image).astype(int)
     print("transform_data: OK")
 
     return x_train_scaled_images, x_test_scaled_images
