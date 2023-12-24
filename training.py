@@ -163,6 +163,14 @@ def train_network(x_train, y_train, epochs, learning_rate):
 
             # ------
 
+            # xを秘密分散
+            x1, x2, x3 = [], [], []
+            for i in range(len(x)):
+                shares = shamir.encrypt(int(x[i]), K, N, P)
+                x1.append(shares[0])
+                x2.append(shares[1])
+                x3.append(shares[2])
+
             # dzを秘密分散
             dz1, dz2, dz3 = [], [], []
             for i in range(len(dz)):
@@ -171,18 +179,21 @@ def train_network(x_train, y_train, epochs, learning_rate):
                 dz2.append(shares[1])
                 dz3.append(shares[2])
 
-            dw1 = np.outer(x, dz1)
-            dw2 = np.outer(x, dz2)
-            dw3 = np.outer(x, dz3)
+            dw1 = np.outer(x1, dz1)
+            dw2 = np.outer(x2, dz2)
+            dw3 = np.outer(x3, dz3)
 
             dw1 = np.array(dw1, dtype=np.int64)
             dw2 = np.array(dw2, dtype=np.int64)
             dw3 = np.array(dw3, dtype=np.int64)
 
+            # dwを再分配
+            converted_dw1, converted_dw2, converted_dw3 = shamir.array_convert_shamir_2d(dw1, dw2, dw3, K, N, P)
+
             # 重みを更新
-            weights1 = (weights1 - dw1).astype(np.int64)
-            weights2 = (weights2 - dw2).astype(np.int64)
-            weights3 = (weights3 - dw3).astype(np.int64)
+            weights1 = (weights1 - converted_dw1).astype(np.int64)
+            weights2 = (weights2 - converted_dw2).astype(np.int64)
+            weights3 = (weights3 - converted_dw3).astype(np.int64)
 
         print(f"Epoch {epoch + 1}/{epochs}")
     print("training done")
@@ -194,7 +205,7 @@ def main():
     (x_train, y_train), (x_test, y_test) = util.load_data()
     x_train, x_test = util.transform_data(x_train, x_test)
 
-    weights, weights1, weights2, weights3 = train_network(x_train, y_train, epochs=1, learning_rate=0.1)
+    weights, weights1, weights2, weights3 = train_network(x_train[:5000], y_train[:5000], epochs=1, learning_rate=0.1)
     util.save_weights(weights, "weights.pkl", "training.py")
     util.save_weights(weights1, "weights1.pkl", "training.py")
     util.save_weights(weights2, "weights2.pkl", "training.py")
