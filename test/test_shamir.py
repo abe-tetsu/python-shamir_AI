@@ -156,3 +156,65 @@ class TestAddShamir(unittest.TestCase):
         res = shamir.decrypt([res1, res2], p)
         self.assertNotEqual(res, secret1 * secret2 * secret3)
 
+    def test_3つのシェアの掛け算の復元テスト(self):
+        secret1 = 10
+        secret2 = 20
+        secret3 = 30
+        answer = secret1 * secret2 * secret3
+
+        k = 2
+        n = 3
+        p = pow(2, 62) - 1
+
+        # secret1とsecret2の掛け算
+        shares1 = shamir.encrypt(secret1, k, n, p)
+        shares2 = shamir.encrypt(secret2, k, n, p)
+        res1 = shares1[0] * shares2[0]
+        res2 = shares1[1] * shares2[1]
+        res3 = shares1[2] * shares2[2]
+
+        # 復元テスト
+        res = shamir.decrypt([res1, res2, res3], p)
+        print("use 3 shares: secret1 * secret2:", res)
+        self.assertEqual(res, secret1 * secret2)
+
+        res = shamir.decrypt([res1, res2], p)
+        print("use 2 shares: secret1 * secret2:", res)
+        self.assertNotEqual(res, secret1 * secret2)
+
+        # 再分配
+        new_share1, new_share2, new_share3 = shamir.convert_shamir(res1, res2, res3, k, n, p)
+        res = shamir.decrypt([new_share1, new_share2, new_share3], p)
+        print("use 3 shares: secret1 * secret2:", res)
+        self.assertEqual(res, secret1 * secret2)
+
+        res = shamir.decrypt([new_share1, new_share2], p)
+        print("use 2 shares: secret1 * secret2:", res)
+        self.assertEqual(res, secret1 * secret2)
+
+        # secret3を掛け算する
+        shares3 = shamir.encrypt(secret3, k, n, p)
+        res1 = new_share1 * shares3[0]
+        res2 = new_share2 * shares3[1]
+        res3 = new_share3 * shares3[2]
+
+        # 復元テスト
+        res = shamir.decrypt([res1, res2, res3], p)
+        print("use 3 shares: secret1 * secret2 * secret3:", res)
+        self.assertEqual(res, answer)
+
+        res = shamir.decrypt([res1, res2], p)
+        print("use 2 shares: secret1 * secret2 * secret3:", res)
+        self.assertNotEqual(res, answer)
+
+        # 再分配
+        new_share1, new_share2, new_share3 = shamir.convert_shamir(res1, res2, res3, k, n, p)
+        res = shamir.decrypt([new_share1, new_share2, new_share3], p)
+        print("use 3 shares: secret1 * secret2 * secret3:", res)
+        self.assertEqual(res, answer)
+
+        res = shamir.decrypt([new_share1, new_share2], p)
+        print("use 2 shares: secret1 * secret2 * secret3:", res)
+        self.assertEqual(res, answer)
+
+

@@ -18,106 +18,10 @@ def relu_shamir(x):
     for i in range(len(x)):
         if x[i] > P / 2:
             return np.zeros(len(x))
+
+        if x[i] < 0:
+            return np.zeros(len(x))
     return x
-
-
-# def train_network(x_train, y_train, epochs, learning_rate):
-#     print("training start")
-#     print("k:", K)
-#     print("n:", N)
-#     print("p:", P)
-#
-#     input_size = 784
-#     output_size = 10
-#
-#     # 重みの初期値を秘密分散（スケーリングして整数化）
-#     weights = (np.random.randn(input_size, output_size) + 1000 * np.sqrt(2. / input_size)).astype(np.int64)
-#
-#     weights1, weights2, weights3 = [], [], []
-#     for weight_row in weights:
-#         weights1_row, weights2_row, weights3_row = [], [], []
-#         for weight in weight_row:
-#             shares = shamir.encrypt(weight, K, N, P)
-#             weights1_row.append(shares[0])
-#             weights2_row.append(shares[1])
-#             weights3_row.append(shares[2])
-#         weights1.append(weights1_row)
-#         weights2.append(weights2_row)
-#         weights3.append(weights3_row)
-#
-#     # 学習開始
-#     for epoch in range(epochs):
-#         counter = 0
-#         for x, y in zip(x_train, y_train):
-#             counter += 1
-#             if counter % 500 == 0:
-#                 print("now:", counter)
-#
-#             # xを学習率でスケーリング
-#             # 学習率を適用し、スケーリング
-#             x_scaled = (x * learning_rate * Accuracy_image).astype(np.int64)
-#
-#             # xとyを秘密分散
-#             x1, x2, x3 = [], [], []
-#             y1, y2, y3 = [], [], []
-#             for i in range(len(x_scaled)):
-#                 shares_x = shamir.encrypt(x_scaled[i], K, N, P)
-#                 x1.append(shares_x[0])
-#                 x2.append(shares_x[1])
-#                 x3.append(shares_x[2])
-#
-#             for i in range(len(y)):
-#                 shares_y = shamir.encrypt(int(y[i]), K, N, P)
-#                 y1.append(shares_y[0])
-#                 y2.append(shares_y[1])
-#                 y3.append(shares_y[2])
-#
-#             # -------------------------------------------
-#
-#             # 順伝播の計算
-#             z = np.dot(x_scaled, weights)
-#             a = relu(z)
-#
-#             # 誤差の計算
-#             dz = a - y
-#             dw = np.outer(x, dz)
-#
-#             # 重みの更新
-#             weights = (weights - dw).astype(np.int64)
-#
-#             # -------------------------------------------
-#
-#             # マルチパーティー計算
-#             z1 = np.dot(x1, weights1)
-#             z2 = np.dot(x2, weights2)
-#             z3 = np.dot(x3, weights3)
-#
-#             z1_transformed, z2_transformed, z3_transformed = shamir.array_convert_shamir(z1, z2, z3, K, N, P)
-#
-#             a1 = relu_shamir(z1_transformed)
-#             a2 = relu_shamir(z2_transformed)
-#             a3 = relu_shamir(z3_transformed)
-#
-#             a1 = np.array(a1, dtype=np.int64)
-#             a2 = np.array(a2, dtype=np.int64)
-#             a3 = np.array(a3, dtype=np.int64)
-#
-#             dz1 = a1 - y1
-#             dz2 = a2 - y2
-#             dz3 = a3 - y3
-#
-#             dw1 = np.outer(x1, dz1)
-#             dw2 = np.outer(x2, dz2)
-#             dw3 = np.outer(x3, dz3)
-#
-#             weights1 = (weights1 - dw1).astype(np.int64)
-#             weights2 = (weights2 - dw2).astype(np.int64)
-#             weights3 = (weights3 - dw3).astype(np.int64)
-#
-#         print(f"Epoch {epoch + 1}/{epochs}")
-#     print("training done")
-#
-#     return weights, weights1, weights2, weights3
 
 def train_network(x_train, y_train, epochs, learning_rate):
     print("training start")
@@ -179,17 +83,17 @@ def train_network(x_train, y_train, epochs, learning_rate):
                 y2.append(shares[1])
                 y3.append(shares[2])
 
-            # zを秘密分散
-            z1, z2, z3 = [], [], []
-            for i in range(len(z)):
-                shares = shamir.encrypt(int(z[i]), K, N, P)
-                z1.append(shares[0])
-                z2.append(shares[1])
-                z3.append(shares[2])
+            # zを計算
+            z1 = np.dot(x1, weights1)
+            z2 = np.dot(x2, weights2)
+            z3 = np.dot(x3, weights3)
 
-            a1 = relu_shamir(z1)
-            a2 = relu_shamir(z2)
-            a3 = relu_shamir(z3)
+            # zを再分配
+            converted_z1, converted_z2, converted_z3 = shamir.array_convert_shamir(z1, z2, z3, K, N, P)
+
+            a1 = relu_shamir(converted_z1)
+            a2 = relu_shamir(converted_z2)
+            a3 = relu_shamir(converted_z3)
 
             a1 = np.array(a1, dtype=np.int64)
             a2 = np.array(a2, dtype=np.int64)
@@ -230,7 +134,6 @@ def main():
     util.save_weights(weights1, "weights1.pkl", "training.py")
     util.save_weights(weights2, "weights2.pkl", "training.py")
     util.save_weights(weights3, "weights3.pkl", "training.py")
-
 
 if __name__ == '__main__':
     start = time.time()
