@@ -171,13 +171,29 @@ def train_network(x_train, y_train, epochs, learning_rate):
                 x2.append(shares[1])
                 x3.append(shares[2])
 
-            # dzを秘密分散
-            dz1, dz2, dz3 = [], [], []
-            for i in range(len(dz)):
-                shares = shamir.encrypt(int(dz[i]), K, N, P)
-                dz1.append(shares[0])
-                dz2.append(shares[1])
-                dz3.append(shares[2])
+            # yを秘密分散
+            y1, y2, y3 = [], [], []
+            for i in range(len(y)):
+                shares = shamir.encrypt(int(y[i]), K, N, P)
+                y1.append(shares[0])
+                y2.append(shares[1])
+                y3.append(shares[2])
+
+            # aを秘密分散
+            a1, a2, a3 = [], [], []
+            for i in range(len(a)):
+                shares = shamir.encrypt(int(a[i]), K, N, P)
+                a1.append(shares[0])
+                a2.append(shares[1])
+                a3.append(shares[2])
+
+            a1 = np.array(a1, dtype=np.int64)
+            a2 = np.array(a2, dtype=np.int64)
+            a3 = np.array(a3, dtype=np.int64)
+
+            dz1 = a1 - y1
+            dz2 = a2 - y2
+            dz3 = a3 - y3
 
             dw1 = np.outer(x1, dz1)
             dw2 = np.outer(x2, dz2)
@@ -205,7 +221,7 @@ def main():
     (x_train, y_train), (x_test, y_test) = util.load_data()
     x_train, x_test = util.transform_data(x_train, x_test)
 
-    weights, weights1, weights2, weights3 = train_network(x_train[:5000], y_train[:5000], epochs=1, learning_rate=0.1)
+    weights, weights1, weights2, weights3 = train_network(x_train[:1000], y_train[:1000], epochs=2, learning_rate=0.1)
     util.save_weights(weights, "weights.pkl", "training.py")
     util.save_weights(weights1, "weights1.pkl", "training.py")
     util.save_weights(weights2, "weights2.pkl", "training.py")
