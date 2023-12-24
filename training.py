@@ -13,6 +13,7 @@ Accuracy_image = util.Accuracy_image
 def relu(x):
     return np.maximum(0, x)
 
+
 # 秘密分散のReLUは、P/2より大きいかどうかで判断する
 def relu_shamir(x):
     for i in range(len(x)):
@@ -23,6 +24,7 @@ def relu_shamir(x):
             return np.zeros(len(x))
     return x
 
+
 def train_network(x_train, y_train, epochs, learning_rate):
     print("training start")
     print("k:", K)
@@ -32,7 +34,6 @@ def train_network(x_train, y_train, epochs, learning_rate):
     input_size = 784
     output_size = 10
 
-    # 重みの初期値を秘密分散（スケーリングして整数化）
     weights = (np.random.randn(input_size, output_size) + 1000 * np.sqrt(2. / input_size)).astype(np.int64)
     weights1, weights2, weights3 = [], [], []
     for weight_row in weights:
@@ -134,6 +135,7 @@ def main():
     util.save_weights(weights1, "weights1.pkl", "training.py")
     util.save_weights(weights2, "weights2.pkl", "training.py")
     util.save_weights(weights3, "weights3.pkl", "training.py")
+
 
 if __name__ == '__main__':
     start = time.time()
