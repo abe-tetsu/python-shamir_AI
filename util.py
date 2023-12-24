@@ -9,8 +9,8 @@ import shamir
 P = pow(2, 62) - 1
 K = 2
 N = 3
-Accuracy_weight = 1000
-Accuracy_image = 2
+Accuracy_weight = 100000
+Accuracy_image = 1000
 
 
 def load_data():
@@ -55,7 +55,7 @@ def compare_arrays(arr1, arr2):
 
     # 各要素の差が1以内かどうかをチェック
     for i in range(len(arr1)):
-        if abs(arr1[i] - arr2[i]) > 100:
+        if abs(arr1[i] - arr2[i]) > 2:
             print("index:", i)
             return False
     return True
