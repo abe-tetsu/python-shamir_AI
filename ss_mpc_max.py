@@ -1,5 +1,5 @@
 import random
-p = pow(2, 62) - 1
+p = pow(2, 61) - 1
 k = 2
 n = 3
 

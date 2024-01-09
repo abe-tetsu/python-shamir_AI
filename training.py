@@ -3,7 +3,7 @@ import time
 import util
 import shamir
 
-P = pow(2, 62) - 1
+P = pow(2, 61) - 1
 K = 2
 N = 3
 Accuracy_weight = util.Accuracy_weight

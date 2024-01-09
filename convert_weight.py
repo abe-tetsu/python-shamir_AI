@@ -3,7 +3,7 @@ import shamir
 
 K = 2
 N = 3
-P = pow(2, 62) - 1
+p = pow(2, 61) - 1
 
 def test_dec(loaded_weights, loaded_weights1, loaded_weights2, loaded_weights3, P):
     for index in range(len(loaded_weights)):

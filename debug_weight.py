@@ -1,7 +1,7 @@
 import util
 import shamir
 
-P = pow(2, 62) - 1
+P = pow(2, 61) - 1
 
 
 def main():

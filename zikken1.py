@@ -5,7 +5,7 @@ import shamir
 import pandas as pd
 
 
-P = pow(2, 62) - 1
+p = pow(2, 61) - 1
 K = 2
 N = 3
 Accuracy_weight = util.Accuracy_weight

@@ -7,7 +7,7 @@ class TestShamir(unittest.TestCase):
         # 100回テストを繰り返す
         k = 2
         n = 3
-        p = pow(2, 62) - 1
+        p = pow(2, 61) - 1
         for i in range(100):
             secret = random.randint(1, 100)
             shares = shamir.encrypt(secret, k, n, p)
@@ -15,6 +15,15 @@ class TestShamir(unittest.TestCase):
 
             dec_secret = shamir.decrypt(shares[:k], p)
             self.assertEqual(dec_secret, secret)
+
+    def test_shamir(self):
+        shares = [-36544, -36452, -36360]
+        p = pow(2, 61) -1
+        dec_secret = shamir.decrypt(shares, p)
+        print(dec_secret)
+
+        dec_secret = shamir.decrypt(shares[:2], p)
+        print(dec_secret)
 
 
     def test_shamir_decrypt(self):
@@ -72,7 +81,7 @@ class TestShamirPlus(unittest.TestCase):
     def test_shamir_minus(self):
         k = 2
         n = 3
-        p = pow(2, 62) - 1
+        p = pow(2, 61) - 1
         secret = -100
         shares = shamir.encrypt(secret, k, n, p)
         print(shares)
@@ -85,7 +94,7 @@ class TestShamirPlus(unittest.TestCase):
     def test_minus_multi(self):
         k = 2
         n = 3
-        p = pow(2, 62) - 1
+        p = pow(2, 61) - 1
         secret1 = -100
         secret2 = -200
         shares1 = shamir.encrypt(secret1, k, n, p)
@@ -99,28 +108,26 @@ class TestShamirPlus(unittest.TestCase):
         print(res)
         self.assertEqual(res, secret1 * secret2)
 
-    def test_wari(self):
+    def test_accuracy(self):
         k = 2
         n = 3
-        p = pow(2, 62) - 1
+        p = pow(2, 61) - 1
         weight = 2000000
-        accuracy = 100
         shares = shamir.encrypt(weight, k, n, p)
-        accuracy_share = shamir.encrypt(accuracy, k, n, p)
 
-        shares[0] = shares[0] // accuracy_share[0]
-        shares[1] = shares[1] // accuracy_share[1]
-        shares[2] = shares[2] // accuracy_share[2]
+        shares[0] = shares[0] * 0.1
+        shares[1] = shares[1] * 0.1
+        shares[2] = shares[2] * 0.1
 
         res = shamir.decrypt(shares, p)
         print(res)
-        self.assertEqual(res, weight // accuracy)
+        self.assertEqual(res, weight * 0.1)
 
 class TestAddShamir(unittest.TestCase):
     def test_秘密の再分配(self):
         k = 2
         n = 3
-        p = pow(2, 62) - 1
+        p = pow(2, 61) - 1
         secret1 = 100
         shares1 = shamir.encrypt(secret1, k, n, p)
 
@@ -164,7 +171,7 @@ class TestAddShamir(unittest.TestCase):
 
         k = 2
         n = 3
-        p = pow(2, 62) - 1
+        p = pow(2, 61) - 1
 
         # secret1とsecret2の掛け算
         shares1 = shamir.encrypt(secret1, k, n, p)
