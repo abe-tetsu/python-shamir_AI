@@ -16,6 +16,17 @@ class TestShamir(unittest.TestCase):
             dec_secret = shamir.decrypt(shares[:k], p)
             self.assertEqual(dec_secret, secret)
 
+    def test_shamir_minus(self):
+        k = 2
+        n = 3
+        p = pow(2, 61) - 1
+        secret = -100
+        shares = shamir.encrypt(secret, k, n, p)
+        print(shares)
+
+        dec_secret = shamir.decrypt(shares[:k], p)
+        print(dec_secret)
+
     def test_shamir(self):
         shares = [-36544, -36452, -36360]
         p = pow(2, 61) -1

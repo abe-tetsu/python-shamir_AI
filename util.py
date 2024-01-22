@@ -10,7 +10,7 @@ p = pow(2, 61) - 1
 K = 2
 N = 3
 Accuracy_weight = 1000
-Accuracy_image = 3
+Accuracy_image = 2
 
 
 def load_data():
